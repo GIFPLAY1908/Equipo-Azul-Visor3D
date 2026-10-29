@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hada fantástica — animación 3D</title>
+<style>
+  :root{
+    --fondo:#3d3d3f; --rosa:#f2cbd8; --rosa-claro:#ffeaf1;
+    --rosa-medio:#ef9fbd; --magenta:#8e245f; --magenta-oscuro:#651542;
+    --tinta:#111015;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; overflow:hidden; color:white;
+    font-family:system-ui,Segoe UI,sans-serif;
+    background:radial-gradient(ellipse at 50% 35%,#555054 0%,var(--fondo) 62%,#29292c 100%);
+  }
+  .scene{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    perspective:1000px; position:relative; isolation:isolate; padding:30px;
+  }
+  .scene::before{
+    content:""; position:absolute; width:min(70vw,700px); aspect-ratio:1;
+    border-radius:50%; background:#f5a9cb; opacity:.07; filter:blur(55px);
+    animation:glow 5s ease-in-out infinite alternate; z-index:-1;
+  }
+  .stars{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+  .star{position:absolute;width:4px;height:4px;border-radius:50%;background:#ffeaf1;
+    box-shadow:0 0 12px #ffb8d4;animation:twinkle 2.5s ease-in-out infinite}
+  .display{
+    width:min(1100px,100%); display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:clamp(4px,2.5vw,30px); align-items:center;
+  }
+  .character-wrap{display:flex;flex-direction:column;align-items:center;gap:15px; transform-style:preserve-3d}
+  .character{
+    width:100%; max-width:330px; overflow:visible;
+    filter:drop-shadow(0 22px 12px #17131866);
+    transform-style:preserve-3d; animation:float 3.8s ease-in-out infinite;
+  }
+  .character-wrap:nth-child(2) .character{animation-delay:-1.2s}
+  .character-wrap:nth-child(3) .character{animation-delay:-2.3s}
+  .wing{transform-box:fill-box;transform-origin:50% 80%;animation:wingbeat 1.25s ease-in-out infinite alternate}
+  .wing.back{animation-delay:-.3s}
+  .wing-right{animation-name:wingbeatRight}
+  .body-mark{animation:shine 3s ease-in-out infinite}
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+  .character-wrap:nth-child(2) .eye{animation-delay:1.7s}
+  .label{font-size:clamp(10px,1.3vw,14px);letter-spacing:.25em;text-transform:uppercase;color:#f6cada;opacity:.8}
+  .caption{position:absolute;bottom:24px;left:20px;right:20px;text-align:center;
+    color:#f8dbe5a8;font-size:12px;letter-spacing:.1em}
+  .palette{position:absolute;top:26px;left:28px;display:flex;gap:8px}
+  .palette span{width:17px;height:17px;border-radius:50%;border:1px solid #ffffff25}
+  @keyframes float{0%,100%{transform:translateY(0) rotateY(-7deg) rotateX(2deg)}50%{transform:translateY(-16px) rotateY(7deg) rotateX(-2deg)}}
+  @keyframes wingbeat{from{transform:rotateY(-19deg) rotateZ(-5deg)}to{transform:rotateY(30deg) rotateZ(5deg)}}
+  @keyframes wingbeatRight{from{transform:rotateY(19deg) rotateZ(5deg)}to{transform:rotateY(-30deg) rotateZ(-5deg)}}
+  @keyframes glow{from{transform:scale(.88);opacity:.45}to{transform:scale(1.12);opacity:1}}
+  @keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.4)}}
+  @keyframes shine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+  @keyframes blink{0%,44%,48%,100%{transform:scaleY(1)}46%{transform:scaleY(.08)}}
+  @media(max-width:650px){
+    .scene{padding:20px 8px}.display{gap:0;grid-template-columns:repeat(3,minmax(0,1fr))}
+    .character-wrap{gap:7px}.label{letter-spacing:.08em;font-size:9px}
+    .palette{top:14px;left:14px}.palette span{width:12px;height:12px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important}
+  }
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="palette" aria-label="Paleta de colores">
+    <span style="background:#8e245f"></span><span style="background:#f2cbd8"></span>
+    <span style="background:#ffeaf1"></span><span style="background:#651542"></span>
+    <span style="background:#fff"></span>
+  </div>
+  <div class="stars" aria-hidden="true">
+    <i class="star" style="left:13%;top:22%;animation-delay:-.4s"></i>
+    <i class="star" style="left:29%;top:68%;animation-delay:-1.1s"></i>
+    <i class="star" style="left:51%;top:16%;animation-delay:-.8s"></i>
+    <i class="star" style="left:75%;top:24%;animation-delay:-1.7s"></i>
+    <i class="star" style="left:88%;top:70%;animation-delay:-.2s"></i>
+    <i class="star" style="left:66%;top:82%;animation-delay:-1.3s"></i>
+    <i class="star" style="left:8%;top:48%;animation-delay:-.7s"></i>
+  </div>
+  <main class="display">
+    <!-- Vista posterior -->
+    <section class="character-wrap" aria-label="Personaje visto desde atrás">
+      <svg class="character" viewBox="0 0 260 300" role="img" aria-label="Hada fantástica vista desde atrás, con alas rosadas">
+        <defs>
+          <pattern id="stripes1" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+            <rect width="12" height="12" fill="#fff7fa"/><path d="M0 0V12" stroke="#ef9fbd" stroke-width="4"/>
+          </pattern>
+        </defs>
+        <!-- alas posteriores -->
+        <path class="wing back" d="M105 139 C65 94 27 91 17 65 C14 117 35 168 82 184 L116 172Z" fill="#f2cbd8" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+        <path class="wing wing-right" d="M155 139 C195 94 233 91 243 65 C246 117 225 168 178 184 L144 172Z" fill="#f2cbd8" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M30 93 Q64 110 84 151 M230 93 Q196 110 176 151" fill="none" stroke="#ef9fbd" stroke-width="3"/>
+        <path d="M99 144 C76 168 54 207 42 254 Q76 244 106 208 L127 171Z" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <path d="M161 144 C184 168 206 207 218 254 Q184 244 154 208 L133 171Z" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <path d="M50 238 Q80 220 98 191 M210 238 Q180 220 162 191" fill="none" stroke="#ef9fbd" stroke-width="3"/>
+        <!-- cuernos -->
+        <path d="M91 110 C61 91 67 48 97 24 C107 16 107 43 103 61 L117 105Z" fill="url(#stripes1)" stroke="#111015" stroke-width="3"/>
+        <path d="M169 110 C199 91 193 48 163 24 C153 16 153 43 157 61 L143 105Z" fill="url(#stripes1)" stroke="#111015" stroke-width="3"/>
+        <!-- cabeza -->
+        <path d="M75 104 Q62 69 85 67 Q101 78 130 31 Q159 78 175 67 Q198 69 185 104 Q178 143 154 164 L106 164 Q82 143 75 104Z" fill="#fff" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+        <!-- cuerpo ornamental -->
+        <path d="M114 162 L146 162 L158 204 L130 229 L102 204Z" fill="#8e245f" stroke="#111015" stroke-width="3"/>
+        <path d="M130 165 L130 223 M108 185 L152 185 M113 205 L147 205" stroke="#ffeaf1" stroke-width="2" fill="none"/>
+        <path d="M112 176 q-13 -10 -12 1 q2 9 12 3 q-9 8 -1 12 M148 176 q13 -10 12 1 q-2 9 -12 3 q9 8 1 12" fill="none" stroke="#ffeaf1" stroke-width="2.5"/>
+        <path d="M110 210 L118 249 L130 230 L142 249 L150 210" fill="#fff" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M104 166 L92 181 L105 187 M156 166 L168 181 L155 187" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+      </svg>
+      <div class="label">Vista posterior</div>
+    </section>
+
+    <!-- Vista frontal -->
+    <section class="character-wrap" aria-label="Personaje visto de frente">
+      <svg class="character" viewBox="0 0 260 300" role="img" aria-label="Hada fantástica de frente, ojos magenta y traje ornamental">
+        <defs>
+          <pattern id="stripes2" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+            <rect width="12" height="12" fill="#fff7fa"/><path d="M0 0V12" stroke="#ef9fbd" stroke-width="4"/>
+          </pattern>
+        </defs>
+        <path class="wing back" d="M102 145 C66 115 27 102 17 75 C14 126 35 174 81 190 L113 173Z" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <path class="wing wing-right" d="M158 145 C194 115 233 102 243 75 C246 126 225 174 179 190 L147 173Z" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <path d="M89 167 Q59 185 43 252 Q75 245 105 211 L121 177Z" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <path d="M171 167 Q201 185 217 252 Q185 245 155 211 L139 177Z" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <path d="M91 110 C64 91 66 47 96 24 C107 15 107 43 102 61 L117 105Z" fill="url(#stripes2)" stroke="#111015" stroke-width="3"/>
+        <path d="M169 110 C196 91 194 47 164 24 C153 15 153 43 158 61 L143 105Z" fill="url(#stripes2)" stroke="#111015" stroke-width="3"/>
+        <path d="M130 51 Q107 94 76 88 Q61 127 80 153 Q98 178 130 176 Q162 178 180 153 Q199 127 184 88 Q153 94 130 51Z" fill="#fff" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M130 66 L130 104 L116 116 L130 126 L144 116Z" fill="#fff7fa" stroke="#ef9fbd" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- ojos -->
+        <path class="eye" d="M82 131 Q92 112 119 126 Q116 151 98 153 Q85 151 82 131Z" fill="#8e245f" stroke="#111015" stroke-width="3"/>
+        <path class="eye" d="M178 131 Q168 112 141 126 Q144 151 162 153 Q175 151 178 131Z" fill="#8e245f" stroke="#111015" stroke-width="3"/>
+        <ellipse cx="101" cy="136" rx="5" ry="9" fill="#f2cbd8"/><ellipse cx="159" cy="136" rx="5" ry="9" fill="#f2cbd8"/>
+        <!-- cuello y traje -->
+        <path d="M115 169 L145 169 L159 211 L130 244 L101 211Z" fill="#8e245f" stroke="#111015" stroke-width="3"/>
+        <path d="M130 171 L130 237 M106 194 L154 194 M113 217 L147 217" fill="none" stroke="#ffeaf1" stroke-width="2.5"/>
+        <path class="body-mark" d="M114 180 q-16 -12 -15 1 q1 9 12 4 q-8 10 0 12 M146 180 q16 -12 15 1 q-1 9 -12 4 q8 10 0 12" fill="none" stroke="#ffeaf1" stroke-width="3" stroke-linecap="round"/>
+        <path d="M108 190 L130 177 L152 190 L130 215Z" fill="#ef9fbd" stroke="#111015" stroke-width="2.5"/>
+        <path d="M108 190 L130 198 L152 190 M130 177 L130 215" fill="none" stroke="#111015" stroke-width="2"/>
+        <path d="M104 207 L92 222 L110 220 L116 244 L130 228 L144 244 L150 220 L168 222 L156 207 L149 232 L130 246 L111 232Z" fill="#fff" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M96 174 L82 188 L103 194 M164 174 L178 188 L157 194" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+      </svg>
+      <div class="label">Vista frontal</div>
+    </section>
+
+    <!-- Vista lateral -->
+    <section class="character-wrap" aria-label="Personaje visto de perfil">
+      <svg class="character" viewBox="0 0 260 300" role="img" aria-label="Hada fantástica de perfil con cuerno y ala">
+        <defs>
+          <pattern id="stripes3" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+            <rect width="12" height="12" fill="#fff7fa"/><path d="M0 0V12" stroke="#ef9fbd" stroke-width="4"/>
+          </pattern>
+        </defs>
+        <path class="wing back" d="M145 159 Q191 101 235 104 Q239 160 186 196 L146 191Z" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <path d="M178 122 Q210 137 228 116" fill="none" stroke="#ef9fbd" stroke-width="3"/>
+        <path class="wing wing-right" d="M130 168 Q171 187 205 245 Q166 248 135 213Z" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <path d="M120 101 Q104 63 133 18 Q146 1 146 43 L151 91Z" fill="url(#stripes3)" stroke="#111015" stroke-width="3"/>
+        <path d="M111 91 Q91 96 79 117 Q66 140 78 158 Q89 176 118 167 L148 143 L144 108Z" fill="#fff" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M78 139 Q88 125 105 130 Q108 147 94 154 Q82 157 78 139Z" fill="#8e245f" stroke="#111015" stroke-width="3"/>
+        <ellipse cx="91" cy="139" rx="4" ry="7" fill="#f2cbd8"/>
+        <path d="M132 153 L165 168 L158 211 L130 235 L108 209Z" fill="#8e245f" stroke="#111015" stroke-width="3"/>
+        <path d="M137 162 Q120 149 119 165 Q121 176 134 170 Q124 184 136 189 M155 176 Q172 165 168 181 Q164 191 153 184" fill="none" stroke="#ffeaf1" stroke-width="3" stroke-linecap="round"/>
+        <path d="M132 184 L151 176 L160 195 L139 209 L125 197Z" fill="#ef9fbd" stroke="#111015" stroke-width="2.5"/>
+        <path d="M120 207 L109 230 L126 224 L135 247 L147 224 L160 229 L151 205" fill="#fff" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M142 156 L166 148 L160 169 L146 179" fill="#f2cbd8" stroke="#111015" stroke-width="3"/>
+        <!-- mechón dentado -->
+        <path d="M137 93 L155 111 L174 103 L170 120 L188 121 L177 136 L190 145 L174 157 L160 151 L151 130Z" fill="#fff" stroke="#111015" stroke-width="3" stroke-linejoin="round"/>
+      </svg>
+      <div class="label">Vista lateral</div>
+    </section>
+  </main>
+  <div class="caption">HADA FANTÁSTICA · PERSPECTIVA 3D · BUCLE DE ANIMACIÓN</div>
+</div>
+</body>
+</html>
