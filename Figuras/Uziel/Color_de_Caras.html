@@ -1,0 +1,556 @@
+html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visor 3D Paramétrico - Tempus (Función 4)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #1e1e1e;
+      color: #e4d5bc;
+    }
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Estilizado de Sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: #2b2326;
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e4d5bc;
+      border: 2px solid #521c2e;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(82, 28, 46, 0.8);
+      transition: all 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      background: #ffffff;
+    }
+    select {
+      background-color: #2b2326;
+      border: 1px solid #521c2e;
+      color: #e4d5bc;
+    }
+    select:focus {
+      outline: none;
+      border-color: #8c3250;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1a1a1a; }
+    ::-webkit-scrollbar-thumb { background: #521c2e; border-radius: 3px; }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col md:flex-row bg-[#1e1e1e] text-[#e4d5bc]">
+
+  <!-- PANEL LATERAL DE CONTROLES -->
+  <aside class="w-full md:w-96 bg-[#161616] border-r border-[#3d212b] flex flex-col justify-between z-10 shadow-2xl overflow-y-auto max-h-screen">
+    <div class="p-6 space-y-6">
+      
+      <!-- ENCABEZADO -->
+      <div class="border-b border-[#3d212b] pb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-3.5 h-9 bg-[#521c2e] rounded-sm shadow-[0_0_12px_#521c2e] border border-[#8c3250]"></div>
+          <div>
+            <h1 class="text-2xl font-black tracking-widest text-[#e4d5bc] font-cinzel">TEMPUS</h1>
+            <p class="text-xs text-[#a39279] font-mono">Función 4: Geometría Paramétrica 3D</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PALETA DE COLOR REFERENCIA DE TEMPUS -->
+      <div class="bg-[#241c20] p-3 rounded-lg border border-[#3d212b]">
+        <span class="text-[10px] font-bold text-[#a39279] uppercase tracking-wider block mb-2 font-mono">Paleta de Referencia</span>
+        <div class="flex justify-between items-center">
+          <div class="flex space-x-2">
+            <div class="w-6 h-6 rounded-full bg-[#e4d5bc] border border-black/50 shadow" title="Hueso (#e4d5bc)"></div>
+            <div class="w-6 h-6 rounded-full bg-[#521c2e] border border-black/50 shadow" title="Borgoña (#521c2e)"></div>
+            <div class="w-6 h-6 rounded-full bg-[#5c4333] border border-black/50 shadow" title="Marrón (#5c4333)"></div>
+            <div class="w-6 h-6 rounded-full bg-[#1e1e1e] border border-[#521c2e] shadow" title="Oscuro (#1e1e1e)"></div>
+          </div>
+          <span class="text-[10px] font-mono text-[#a39279]">Ref: 6.4</span>
+        </div>
+      </div>
+
+      <!-- SELECTOR DE COMPONENTE PARAMÉTRICO -->
+      <div class="space-y-2">
+        <label for="param-select" class="text-xs font-bold text-[#e4d5bc] uppercase tracking-wider font-mono block">
+          Componente Paramétrico
+        </label>
+        <select id="param-select" class="w-full p-2.5 rounded-lg text-sm font-semibold cursor-pointer border shadow-inner transition-colors">
+          <option value="spine">1. Resorte / Columna Vertebral (Helicoide)</option>
+          <option value="ribs">2. Costillas / Anillos Torácicos (Toroide)</option>
+          <option value="skull">3. Cráneo Esférico (Elipsoide)</option>
+          <option value="horns">4. Cuernos Curvos (Bézier 3D)</option>
+        </select>
+      </div>
+
+      <!-- CONTROLES PARAMÉTRICOS (EXACTAMENTE 2 SLIDERS) -->
+      <div class="bg-[#241c20] p-4 rounded-xl border border-[#3d212b] space-y-5">
+        <div class="flex justify-between items-center border-b border-[#3d212b] pb-2">
+          <span class="text-xs font-bold text-[#e4d5bc] uppercase tracking-wider font-mono flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#521c2e]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+            Parámetros Modificables
+          </span>
+          <span class="text-[10px] font-mono text-[#8c3250] bg-[#521c2e]/20 px-2 py-0.5 rounded border border-[#521c2e]/40">2 Sliders</span>
+        </div>
+
+        <!-- SLIDER 1 -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span id="label-param1" class="text-[#a39279] font-mono">Parámetro 1 (Vueltas / Pasos)</span>
+            <span id="val-param1" class="font-mono text-[#e4d5bc] font-bold">6</span>
+          </div>
+          <input type="range" id="slider-param1" min="1" max="20" step="1" value="6" class="w-full">
+        </div>
+
+        <!-- SLIDER 2 -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span id="label-param2" class="text-[#a39279] font-mono">Parámetro 2 (Radio / Amplitud)</span>
+            <span id="val-param2" class="font-mono text-[#e4d5bc] font-bold">40</span>
+          </div>
+          <input type="range" id="slider-param2" min="10" max="100" step="1" value="40" class="w-full">
+        </div>
+      </div>
+
+      <!-- DESCRIPCIÓN Y FÓRMULA MATEMÁTICA -->
+      <div class="bg-[#191316] p-4 rounded-xl border border-[#3d212b] space-y-2">
+        <span class="text-xs font-bold text-[#e4d5bc] uppercase tracking-wider font-mono block border-b border-[#3d212b] pb-1.5">
+          Ecuaciones Paramétricas
+        </span>
+        <p id="param-description" class="text-[11px] text-[#a39279] leading-relaxed">
+          Generación helicoidal de la columna de Tempus.
+        </p>
+        <div id="equation-box" class="p-3 bg-[#0f0b0d] rounded-lg border border-[#3d212b] font-mono text-[10px] text-[#e4d5bc] overflow-x-auto whitespace-pre leading-relaxed shadow-inner">
+          x(t) = R · cos(N · t)
+          y(t) = h · t - offset
+          z(t) = R · sin(N · t)
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="p-3 bg-[#111111] border-t border-[#3d212b] text-center text-[10px] text-[#a39279] font-mono">
+      MATEMÁTICA PARAMÉTRICA 3D • GRÁFICOS POR COMPUTADORA
+    </div>
+  </aside>
+
+  <!-- ÁREA VISOR CANVAS 3D -->
+  <main class="flex-1 relative flex items-center justify-center bg-radial from-[#2b1e23] via-[#1e1e1e] to-[#121212] overflow-hidden select-none">
+    
+    <!-- Canvas Principal -->
+    <canvas id="canvas3d" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+
+    <!-- OVERLAY EN CANVAS -->
+    <div class="absolute top-4 left-4 bg-[#161616]/90 backdrop-blur border border-[#3d212b] p-3.5 rounded-xl text-xs space-y-1 shadow-2xl pointer-events-none">
+      <div class="text-[#e4d5bc] font-cinzel font-bold text-sm">TEMPUS - VISTA 3D</div>
+      <div class="text-[#a39279] font-mono text-[11px]">Vértices: <span id="info-points" class="text-[#e4d5bc]">0</span> | Mallas/Líneas: <span id="info-lines" class="text-[#e4d5bc]">0</span></div>
+      <div class="text-[#a39279] font-mono text-[10px] flex items-center gap-1.5 pt-1">
+        <span class="w-2 h-2 rounded-full bg-[#521c2e] animate-ping"></span> Rotación: Arrastrar con el ratón
+      </div>
+    </div>
+
+  </main>
+
+  <!-- LÓGICA DE COMPUTACIÓN GRÁFICA MATEMÁTICA -->
+  <script>
+    // =========================================================================
+    // 1. SETUP DE CANVAS Y PROYECCIÓN
+    // =========================================================================
+    const canvas = document.getElementById('canvas3d');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const FOV = 400; // Focal distance
+    let rotX = 0.3;  // Rotación inicial
+    let rotY = -0.5;
+
+    // =========================================================================
+    // 2. CONFIGURACIÓN DE MODELOS PARAMÉTRICOS (INSPIRADOS EN TEMPUS)
+    // =========================================================================
+    const paramConfigs = {
+      spine: {
+        title: "Resorte / Columna Vertebral",
+        desc: "Estructura helicoidal en resorte que simula la columna ósea de Tempus con vértebras interconectadas.",
+        label1: "Número de Vueltas (N)",
+        min1: 2, max1: 15, step1: 1, val1: 6,
+        label2: "Radio Helicoidal (R)",
+        min2: 15, max2: 80, step2: 1, val2: 35,
+        eq: x(t) = R · cos(N · t)\ny(t) = 150 · (t / π) - 150\nz(t) = R · sin(N · t)\n\nDonde t ∈ [0, 2π],
+        generate: (p1, p2) => {
+          const points = [];
+          const lines = [];
+          const turns = p1;
+          const radius = p2;
+          const steps = 200;
+
+          for (let i = 0; i <= steps; i++) {
+            const t = (i / steps) * (2 * Math.PI);
+            const angle = t * turns;
+            const x = radius * Math.cos(angle);
+            const y = (i / steps) * 260 - 130;
+            const z = radius * Math.sin(angle);
+            points.push({ point: [x, y, z], color: '#e4d5bc' });
+
+            // Anillos secundarios (vértebras)
+            const vX = (radius + 8 * Math.cos(i)) * Math.cos(angle);
+            const vZ = (radius + 8 * Math.cos(i)) * Math.sin(angle);
+            points.push({ point: [vX, y, vZ], color: '#521c2e' });
+
+            if (i > 0) {
+              lines.push([i * 2 - 2, i * 2, '#e4d5bc', 2.5]);
+              lines.push([i * 2 - 1, i * 2 + 1, '#521c2e', 1.5]);
+            }
+          }
+          return { points, lines };
+        }
+      },
+
+      ribs: {
+        title: "Costillas Torácicas (Toroide)",
+        desc: "Anillos toroidales concéntricos paramétricos inspirados en las costillas superpuestas de Tempus.",
+        label1: "Anillos / Costillas (N)",
+        min1: 3, max1: 12, step1: 1, val1: 6,
+        label2: "Ancho del Torso (R)",
+        min2: 20, max2: 90, step2: 1, val2: 55,
+        eq: x(u,v) = (R + r · cos(v)) · cos(u)\ny(u,v) = h_offset + r · sin(v)\nz(u,v) = (R + r · cos(v)) · sin(u)\n\nu,v ∈ [0, 2π],
+        generate: (p1, p2) => {
+          const points = [];
+          const lines = [];
+          const numRibs = p1;
+          const mainRadius = p2;
+          const tubeRadius = 10;
+          const uSteps = 16;
+
+          let ptIdx = 0;
+          for (let r = 0; r < numRibs; r++) {
+            const yOffset = (r / numRibs) * 180 - 80;
+            const currentRadius = mainRadius * (1 - (r / numRibs) * 0.4); // Atenuación hacia abajo
+            const ribStartIndex = ptIdx;
+
+            for (let i = 0; i < uSteps; i++) {
+              const u = (i / uSteps) * Math.PI * 2;
+              const x = currentRadius * Math.cos(u);
+              const z = (currentRadius * 0.7) * Math.sin(u); // Elipse pectoral
+              const y = yOffset + tubeRadius * Math.sin(u * 2);
+
+              points.push({ point: [x, y, z], color: r % 2 === 0 ? '#e4d5bc' : '#521c2e' });
+
+              if (i > 0) {
+                lines.push([ptIdx - 1, ptIdx, r % 2 === 0 ? '#e4d5bc' : '#521c2e', 2]);
+              }
+              ptIdx++;
+            }
+            lines.push([ptIdx - 1, ribStartIndex, r % 2 === 0 ? '#e4d5bc' : '#521c2e', 2]);
+          }
+          return { points, lines };
+        }
+      },
+
+      skull: {
+        title: "Cráneo Esférico (Elipsoide)",
+        desc: "Superficie esférica/elipsoide paramétrica que deforma la estructura del cráneo hueco de Tempus.",
+        label1: "Resolución Lat/Lon (N)",
+        min1: 6, max1: 20, step1: 1, val1: 12,
+        label2: "Radio Craneal (R)",
+        min2: 30, max2: 100, step2: 1, val2: 70,
+        eq: x(u,v) = R_x · sin(u) · cos(v)\ny(u,v) = R_y · cos(u)\nz(u,v) = R_z · sin(u) · sin(v)\n\nu ∈ [0, π], v ∈ [0, 2π],
+        generate: (p1, p2) => {
+          const points = [];
+          const lines = [];
+          const res = p1;
+          const radius = p2;
+
+          for (let i = 0; i <= res; i++) {
+            const u = (i / res) * Math.PI;
+            for (let j = 0; j <= res; j++) {
+              const v = (j / res) * 2 * Math.PI;
+              // Deformación parabólica para forma craneal
+              const rx = radius * 0.85;
+              const ry = radius * 1.1;
+              const rz = radius * 0.9;
+
+              const x = rx * Math.sin(u) * Math.cos(v);
+              const y = ry * Math.cos(u) - 20;
+              const z = rz * Math.sin(u) * Math.sin(v);
+
+              points.push({ point: [x, y, z], color: (i + j) % 2 === 0 ? '#e4d5bc' : '#5c4333' });
+            }
+          }
+
+          const stride = res + 1;
+          for (let i = 0; i < res; i++) {
+            for (let j = 0; j < res; j++) {
+              const idx = i * stride + j;
+              lines.push([idx, idx + 1, '#5c4333', 1]);
+              lines.push([idx, idx + stride, '#e4d5bc', 1]);
+            }
+          }
+          return { points, lines };
+        }
+      },
+
+      horns: {
+        title: "Cuernos Orgánicos (Curva de Bézier 3D)",
+        desc: "Curvas paramétricas cúbicas de Bézier en el espacio 3D que forman la corona de cuernos dentados.",
+        label1: "Curvatura / Elevación (N)",
+        min1: 2, max1: 10, step1: 1, val1: 4,
+        label2: "Envergadura / Extensión (R)",
+        min2: 30, max2: 120, step2: 1, val2: 80,
+        eq: B(t) = (1-t)³P₀ + 3(1-t)²t P₁ + 3(1-t)t² P₂ + t³ P₃\n\nt ∈ [0, 1],
+        generate: (p1, p2) => {
+          const points = [];
+          const lines = [];
+          const curvature = p1 * 15;
+          const span = p2;
+          const steps = 40;
+
+          // Puntos de control para 4 cuernos (2 principales, 2 secundarios)
+          const hornConfigs = [
+            // Izquierdo Principal
+            [[0, -40, 0], [-span * 0.5, -80, span * 0.2], [-span, -120 - curvature, 0], [-span * 0.6, -180, -span * 0.3]],
+            // Derecho Principal
+            [[0, -40, 0], [span * 0.5, -80, span * 0.2], [span, -120 - curvature, 0], [span * 0.6, -180, -span * 0.3]],
+            // Izquierdo Menor
+            [[0, -30, 0], [-span * 0.8, -50, span * 0.4], [-span * 0.9, -90 - curvature, 10], [-span * 0.7, -110, 0]],
+            // Derecho Menor
+            [[0, -30, 0], [span * 0.8, -50, span * 0.4], [span * 0.9, -90 - curvature, 10], [span * 0.7, -110, 0]]
+          ];
+
+          let ptIdx = 0;
+          hornConfigs.forEach((ctrls, h) => {
+            const startIndex = ptIdx;
+            const color = h < 2 ? '#e4d5bc' : '#521c2e';
+
+            for (let i = 0; i <= steps; i++) {
+              const t = i / steps;
+              // Fórmula Bézier Cúbica
+              const cx = Math.pow(1 - t, 3) * ctrls[0][0] + 3 * Math.pow(1 - t, 2) * t * ctrls[1][0] + 3 * (1 - t) * Math.pow(t, 2) * ctrls[2][0] + Math.pow(t, 3) * ctrls[3][0];
+              const cy = Math.pow(1 - t, 3) * ctrls[0][1] + 3 * Math.pow(1 - t, 2) * t * ctrls[1][1] + 3 * (1 - t) * Math.pow(t, 2) * ctrls[2][1] + Math.pow(t, 3) * ctrls[3][1];
+              const cz = Math.pow(1 - t, 3) * ctrls[0][2] + 3 * Math.pow(1 - t, 2) * t * ctrls[1][2] + 3 * (1 - t) * Math.pow(t, 2) * ctrls[2][2] + Math.pow(t, 3) * ctrls[3][2];
+
+              points.push({ point: [cx, cy, cz], color: color });
+
+              if (i > 0) {
+                lines.push([ptIdx - 1, ptIdx, color, h < 2 ? 3 : 2]);
+              }
+              ptIdx++;
+            }
+          });
+
+          return { points, lines };
+        }
+      }
+    };
+
+    let activeKey = 'spine';
+    let currentGeometry = { points: [], lines: [] };
+
+    // =========================================================================
+    // 3. MATRICES DE TRANSFORMACIÓN 4x4
+    // =========================================================================
+    function getRotationMatrix(angleX, angleY) {
+      const cx = Math.cos(angleX), sx = Math.sin(angleX);
+      const cy = Math.cos(angleY), sy = Math.sin(angleY);
+
+      // Matriz combinada Rx * Ry
+      return [
+        [cy, 0, sy, 0],
+        [sx * sy, cx, -sx * cy, 0],
+        [-cx * sy, sx, cx * cy, 0],
+        [0, 0, 0, 1]
+      ];
+    }
+
+    function transformPoint(M, p) {
+      const x = p[0], y = p[1], z = p[2];
+      return [
+        M[0][0] * x + M[0][1] * y + M[0][2] * z + M[0][3],
+        M[1][0] * x + M[1][1] * y + M[1][2] * z + M[1][3],
+        M[2][0] * x + M[2][1] * y + M[2][2] * z + M[2][3]
+      ];
+    }
+
+    function projectPerspective(point) {
+      const x = point[0];
+      const y = point[1];
+      const z = point[2] + 350; // Offset de cámara
+
+      const safeZ = z <= 0 ? 0.1 : z;
+      const projX = (x * FOV) / safeZ + canvas.width / 2;
+      const projY = (y * FOV) / safeZ + canvas.height / 2;
+
+      return [projX, projY, safeZ];
+    }
+
+    // =========================================================================
+    // 4. ACTUALIZACIÓN DE GEOMETRÍA Y REFRESH
+    // =========================================================================
+    function updateGeometry() {
+      const config = paramConfigs[activeKey];
+      const p1 = parseFloat(document.getElementById('slider-param1').value);
+      const p2 = parseFloat(document.getElementById('slider-param2').value);
+
+      document.getElementById('val-param1').innerText = p1;
+      document.getElementById('val-param2').innerText = p2;
+
+      currentGeometry = config.generate(p1, p2);
+
+      document.getElementById('info-points').innerText = currentGeometry.points.length;
+      document.getElementById('info-lines').innerText = currentGeometry.lines.length;
+    }
+
+    function setupUIForConfig(key) {
+      const config = paramConfigs[key];
+      activeKey = key;
+
+      document.getElementById('label-param1').innerText = config.label1;
+      const s1 = document.getElementById('slider-param1');
+      s1.min = config.min1; s1.max = config.max1; s1.step = config.step1; s1.value = config.val1;
+
+      document.getElementById('label-param2').innerText = config.label2;
+      const s2 = document.getElementById('slider-param2');
+      s2.min = config.min2; s2.max = config.max2; s2.step = config.step2; s2.value = config.val2;
+
+      document.getElementById('param-description').innerText = config.desc;
+      document.getElementById('equation-box').innerText = config.eq;
+
+      updateGeometry();
+    }
+
+    // =========================================================================
+    // 5. BUCLE DE RENDERIZADO
+    // =========================================================================
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Fondo dinámico o cuadrícula de suelo
+      drawGrid();
+
+      const matRot = getRotationMatrix(rotX, rotY);
+
+      // Transformar y proyectar
+      const projectedPoints = currentGeometry.points.map(item => {
+        const transformed = transformPoint(matRot, item.point);
+        const projected = projectPerspective(transformed);
+        return { proj: projected, color: item.color };
+      });
+
+      // Dibujar Aristas/Líneas
+      currentGeometry.lines.forEach(line => {
+        const p1 = projectedPoints[line[0]];
+        const p2 = projectedPoints[line[1]];
+
+        if (p1 && p2) {
+          ctx.strokeStyle = line[2] || '#e4d5bc';
+          ctx.lineWidth = line[3] || 1.5;
+          ctx.beginPath();
+          ctx.moveTo(p1.proj[0], p1.proj[1]);
+          ctx.lineTo(p2.proj[0], p2.proj[1]);
+          ctx.stroke();
+        }
+      });
+
+      // Dibujar Vértices/Nodos
+      projectedPoints.forEach(pt => {
+        const size = Math.max(1, (300 / pt.proj[2]) * 1.8);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.proj[0], pt.proj[1], size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      requestAnimationFrame(render);
+    }
+
+    function drawGrid() {
+      ctx.strokeStyle = 'rgba(82, 28, 46, 0.2)';
+      ctx.lineWidth = 1;
+      const size = 300;
+      const step = 40;
+      const yFloor = 140;
+
+      const matRot = getRotationMatrix(rotX, rotY);
+
+      for (let x = -size; x <= size; x += step) {
+        const pt1 = projectPerspective(transformPoint(matRot, [x, yFloor, -size]));
+        const pt2 = projectPerspective(transformPoint(matRot, [x, yFloor, size]));
+        ctx.beginPath();
+        ctx.moveTo(pt1[0], pt1[1]);
+        ctx.lineTo(pt2[0], pt2[1]);
+        ctx.stroke();
+      }
+
+      for (let z = -size; z <= size; z += step) {
+        const pt1 = projectPerspective(transformPoint(matRot, [-size, yFloor, z]));
+        const pt2 = projectPerspective(transformPoint(matRot, [size, yFloor, z]));
+        ctx.beginPath();
+        ctx.moveTo(pt1[0], pt1[1]);
+        ctx.lineTo(pt2[0], pt2[1]);
+        ctx.stroke();
+      }
+    }
+
+    // =========================================================================
+    // 6. EVENTOS DE USUARIOS
+    // =========================================================================
+    document.getElementById('param-select').addEventListener('change', (e) => {
+      setupUIForConfig(e.target.value);
+    });
+
+    document.getElementById('slider-param1').addEventListener('input', updateGeometry);
+    document.getElementById('slider-param2').addEventListener('input', updateGeometry);
+
+    // Rotación por arrastre de ratón
+    let isDragging = false;
+    let lastX = 0, lastY = 0;
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => isDragging = false);
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+
+      rotY += dx * 0.008;
+      rotX += dy * 0.008;
+
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    // Inicializar
+    setupUIForConfig('spine');
+    render();
+
+  </script>
+</body>
+</html>
